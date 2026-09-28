@@ -1,6 +1,6 @@
 {
   "name": "cc-deck",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CC Deck — Claude Code workspace manager with local custom model gateway and a polished UI",
   "main": "./out/main/index.js",
   "author": "CC Deck",
