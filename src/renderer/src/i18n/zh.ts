@@ -284,6 +284,11 @@ export const zh: Record<keyof typeof en, string> = {
   'toast.verificationFailed': '验证失败',
   'installPicker.followsActive': '跟随当前处于活动状态的安装。',
   'installPicker.staleHint': '此路径已不再被检测到。请选择其他安装，或在可用后重新选择它。',
+  // workspaces page — running status
+  'workspaces.card.statusRunning': '运行中',
+  'workspaces.card.statusExited': '已退出',
+  'workspaces.card.statusIdle': '空闲',
+  'workspaces.card.statusAria': '{name} 状态：{status}',
   // __ANCHOR_WORKSPACES__
   // models page (continued)
   'models.form.saveChanges': '保存修改',

@@ -285,6 +285,11 @@ export const en = {
   'installPicker.followsActive': 'Follows whichever install is currently active.',
   'installPicker.staleHint':
     'This path is no longer detected. Pick another install or reselect it once available.',
+  // workspaces page — running status
+  'workspaces.card.statusRunning': 'Running',
+  'workspaces.card.statusExited': 'Exited',
+  'workspaces.card.statusIdle': 'Idle',
+  'workspaces.card.statusAria': '{name} status: {status}',
   // __ANCHOR_WORKSPACES__
   // models page (continued)
   'models.form.saveChanges': 'Save changes',

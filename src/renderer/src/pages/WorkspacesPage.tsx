@@ -46,6 +46,7 @@ import type {
   ClaudeInstall,
   Language,
   LaunchResult,
+  LaunchSession,
   LaunchVerification,
   VerificationCheck,
   Workspace
@@ -113,6 +114,31 @@ function resolveInstallVersion(
     return installs.find((i) => i.path === installPath)?.version ?? null
   }
   return activeInstall?.version ?? null
+}
+
+/** Per-workspace run status derived from tracked launch sessions. */
+type WorkspaceStatus = 'running' | 'exited' | 'idle'
+
+const STATUS_DOT: Record<WorkspaceStatus, 'running' | 'stopped' | 'ok'> = {
+  running: 'running',
+  exited: 'stopped',
+  idle: 'stopped'
+}
+
+const STATUS_LABEL_KEY: Record<WorkspaceStatus, TranslationKey> = {
+  running: 'workspaces.card.statusRunning',
+  exited: 'workspaces.card.statusExited',
+  idle: 'workspaces.card.statusIdle'
+}
+
+/**
+ * Status for a workspace: 'running' when any of its tracked sessions is still
+ * live, else 'exited' when it has any recorded session, else 'idle'.
+ */
+function workspaceStatus(sessions: LaunchSession[], workspaceId: string): WorkspaceStatus {
+  const ws = sessions.filter((s) => s.workspaceId === workspaceId)
+  if (ws.some((s) => s.status === 'running')) return 'running'
+  return ws.length > 0 ? 'exited' : 'idle'
 }
 
 export default function WorkspacesPage(): JSX.Element {
@@ -423,6 +449,7 @@ export default function WorkspacesPage(): JSX.Element {
               const isSelected = ws.id === selectedId
               const version = resolveInstallVersion(ws.installPath, installs, activeInstall)
               const usingActive = ws.installPath === null
+              const status = workspaceStatus(sessions, ws.id)
               return (
                 <div
                   key={ws.id}
@@ -458,6 +485,14 @@ export default function WorkspacesPage(): JSX.Element {
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <Tooltip
+                      label={t('workspaces.card.statusAria', {
+                        name: ws.name,
+                        status: t(STATUS_LABEL_KEY[status])
+                      })}
+                    >
+                      <StatusDot status={STATUS_DOT[status]} label={t(STATUS_LABEL_KEY[status])} />
+                    </Tooltip>
                     <Badge className="bg-secondary text-secondary-foreground">
                       {modelName(ws.modelConfigId)}
                     </Badge>
