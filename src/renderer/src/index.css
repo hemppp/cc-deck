@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 222 24% 12%;
+    --surface: 0 0% 100%;
+    --surface-muted: 220 16% 95%;
+    --border: 220 14% 88%;
+    --input: 220 14% 88%;
+    --ring: 262 70% 55%;
+    --primary: 262 70% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 16% 93%;
+    --secondary-foreground: 222 24% 18%;
+    --muted: 220 16% 93%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 262 60% 95%;
+    --accent-foreground: 262 60% 30%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 60% 40%;
+    --warning: 38 92% 50%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 224 24% 8%;
+    --foreground: 210 20% 96%;
+    --surface: 224 22% 11%;
+    --surface-muted: 224 20% 15%;
+    --border: 224 16% 20%;
+    --input: 224 16% 22%;
+    --ring: 262 70% 62%;
+    --primary: 262 70% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 224 18% 18%;
+    --secondary-foreground: 210 20% 92%;
+    --muted: 224 18% 18%;
+    --muted-foreground: 218 12% 60%;
+    --accent: 262 40% 22%;
+    --accent-foreground: 262 70% 88%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 55% 48%;
+    --warning: 38 92% 55%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    overflow: hidden;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-border;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-surface/70 backdrop-blur-xl border border-border/60;
+  }
+
+  .card {
+    @apply rounded-xl border border-border bg-surface shadow-sm;
+  }
+
+  .focus-ring {
+    @apply outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
+  .drag-region {
+    -webkit-app-region: drag;
+  }
+  .no-drag {
+    -webkit-app-region: no-drag;
+  }
+}
