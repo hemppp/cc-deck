@@ -79,6 +79,7 @@ const stubPlugin = {
             export function getGatewayState(){
               return globalThis.__GW__ || { status: 'stopped', port: null, baseUrl: null, activeConfigId: null, token: null, error: null, requestCount: 0 }
             }
+            export async function startGateway(){ return getGatewayState() }
             export function onGatewayState(){ return () => {} }
           `,
           loader: 'js'

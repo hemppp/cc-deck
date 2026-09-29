@@ -1220,16 +1220,61 @@ export async function stopGateway(): Promise<GatewayState> {
 }
 
 /**
- * Environment Claude Code needs to route through the gateway. Empty when the
- * gateway is not running.
+ * Normalise an Anthropic-compatible base URL to the root Claude Code expects
+ * (it appends `/v1/messages` itself). Strips a trailing `/v1/messages`,
+ * `/messages`, or `/v1` so a user can paste any of those forms.
  */
-export function getActiveEnv(): Record<string, string> {
+function anthropicBaseUrl(baseUrl: string): string {
+  return (baseUrl || '')
+    .trim()
+    .replace(/\/+$/, '')
+    .replace(/\/v1\/messages$/, '')
+    .replace(/\/messages$/, '')
+    .replace(/\/v1$/, '')
+}
+
+/**
+ * Environment that points Claude Code **directly** at a native
+ * Anthropic-compatible upstream, bypassing the gateway. Only meaningful for
+ * `kind === 'anthropic'`; every other provider kind must be translated by the
+ * gateway. Returns `{}` when the config cannot be reached directly.
+ *
+ * We inject `ANTHROPIC_API_KEY` (not `ANTHROPIC_AUTH_TOKEN`) so Claude Code
+ * sends the key as the `x-api-key` header — the two must never both be set.
+ */
+export function directEnvFor(config: ModelConfig | null | undefined): Record<string, string> {
+  if (!config || config.kind !== 'anthropic' || !config.baseUrl) return {}
+  const env: Record<string, string> = {
+    ANTHROPIC_BASE_URL: anthropicBaseUrl(config.baseUrl)
+  }
+  if (config.apiKey) env.ANTHROPIC_API_KEY = config.apiKey
+  if (config.model) env.ANTHROPIC_MODEL = config.model
+  return env
+}
+
+/**
+ * Environment Claude Code needs to reach its model, given the effective config.
+ *
+ * - `kind === 'anthropic'` → direct injection (no gateway involved).
+ * - any other kind → the gateway's base URL + token, but only when the gateway
+ *   is running *and* actually routing to `config` (so we never point Claude at
+ *   the wrong upstream). Empty otherwise.
+ *
+ * Called with no argument it keeps the legacy behaviour: the gateway env while
+ * running, else `{}`.
+ */
+export function getActiveEnv(config?: ModelConfig | null): Record<string, string> {
+  // A native Anthropic-compatible upstream is reached directly, always.
+  if (config && config.kind === 'anthropic') return directEnvFor(config)
   if (state.status !== 'running' || !state.baseUrl) return {}
+  // A specific config was requested but the gateway is routing elsewhere.
+  if (config && state.activeConfigId !== config.id) return {}
   const env: Record<string, string> = {
     ANTHROPIC_BASE_URL: state.baseUrl
   }
   if (state.token) env.ANTHROPIC_AUTH_TOKEN = state.token
-  if (activeConfig?.model) env.ANTHROPIC_MODEL = activeConfig.model
+  const model = activeConfig?.model ?? config?.model
+  if (model) env.ANTHROPIC_MODEL = model
   return env
 }
 

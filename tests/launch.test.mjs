@@ -70,8 +70,10 @@ const stub = {
         return mod(`export async function detectInstalls(){ return globalThis.__INSTALLS__ || [] }`)
       if (args.path === 'gateway')
         return mod(`export function getActiveEnv(){ return globalThis.__ENV__ || {} }
-          export function getGatewayState(){ return globalThis.__GW__ || { status:'stopped', port:null, baseUrl:null, activeConfigId:null, token:null, error:null, requestCount:0 } }`)
-      return mod(`export function getSettings(){ return { launchMode: 'in-app' } }`)
+          export function getGatewayState(){ return globalThis.__GW__ || { status:'stopped', port:null, baseUrl:null, activeConfigId:null, token:null, error:null, requestCount:0 } }
+          export async function startGateway(){ return getGatewayState() }`)
+      return mod(`export function getSettings(){ return { launchMode: 'in-app', gatewayPort: 8788, defaultModelConfigId: null } }
+        export function getModelConfigs(){ return globalThis.__MODELS__ || [] }`)
     })
   }
 }

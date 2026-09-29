@@ -63,6 +63,7 @@ const CHECK_KEYS: Record<string, TranslationKey> = {
   'executable-exists': 'check.executableExists',
   'install-matches': 'check.installMatches',
   'model-configured': 'check.modelConfigured',
+  'routing-mode': 'check.routingMode',
   'gateway-state': 'check.gatewayState'
 }
 
@@ -176,11 +177,13 @@ export default function WorkspacesPage(): JSX.Element {
   const [draftName, setDraftName] = useState('')
   const [draftPath, setDraftPath] = useState('')
   const [draftInstall, setDraftInstall] = useState<string | null>(null)
+  const [draftModel, setDraftModel] = useState<string>(DEFAULT_MODEL)
   const [browsing, setBrowsing] = useState(false)
   const [saving, setSaving] = useState(false)
 
   const [editTarget, setEditTarget] = useState<Workspace | null>(null)
   const [editInstall, setEditInstall] = useState<string | null>(null)
+  const [editModel, setEditModel] = useState<string>(DEFAULT_MODEL)
   const [savingEdit, setSavingEdit] = useState(false)
 
   const [launchTarget, setLaunchTarget] = useState<Workspace | null>(null)
@@ -226,6 +229,7 @@ export default function WorkspacesPage(): JSX.Element {
     setDraftName('')
     setDraftPath('')
     setDraftInstall(null)
+    setDraftModel(DEFAULT_MODEL)
     setAddOpen(true)
   }
 
@@ -256,7 +260,12 @@ export default function WorkspacesPage(): JSX.Element {
     }
     setSaving(true)
     try {
-      await add({ name, path, installPath: draftInstall })
+      await add({
+        name,
+        path,
+        installPath: draftInstall,
+        modelConfigId: draftModel === DEFAULT_MODEL ? null : draftModel
+      })
       toast({ title: t('toast.workspaceAdded'), description: name, variant: 'success' })
       setAddOpen(false)
     } catch (err) {
@@ -273,13 +282,17 @@ export default function WorkspacesPage(): JSX.Element {
   const openEdit = (ws: Workspace): void => {
     setEditTarget(ws)
     setEditInstall(ws.installPath)
+    setEditModel(ws.modelConfigId ?? DEFAULT_MODEL)
   }
 
   const submitEdit = async (): Promise<void> => {
     if (!editTarget) return
     setSavingEdit(true)
     try {
-      await update(editTarget.id, { installPath: editInstall })
+      await update(editTarget.id, {
+        installPath: editInstall,
+        modelConfigId: editModel === DEFAULT_MODEL ? null : editModel
+      })
       toast({ title: t('toast.installUpdated'), description: editTarget.name, variant: 'success' })
       setEditTarget(null)
     } catch (err) {
@@ -609,6 +622,17 @@ export default function WorkspacesPage(): JSX.Element {
               </Button>
             </div>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="ws-model">{t('workspaces.add.modelLabel')}</Label>
+            <Select
+              id="ws-model"
+              options={modelOptions}
+              value={draftModel}
+              onChange={(e) => setDraftModel(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">{t('workspaces.add.modelHint')}</p>
+          </div>
+
           <InstallPicker
             value={draftInstall}
             onChange={setDraftInstall}
@@ -639,12 +663,23 @@ export default function WorkspacesPage(): JSX.Element {
           </div>
         }
       >
-        <InstallPicker
-          value={editInstall}
-          onChange={setEditInstall}
-          installs={installs}
-          activePath={activePath}
-        />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="ws-edit-model">{t('workspaces.editInstall.modelLabel')}</Label>
+            <Select
+              id="ws-edit-model"
+              options={modelOptions}
+              value={editModel}
+              onChange={(e) => setEditModel(e.target.value)}
+            />
+          </div>
+          <InstallPicker
+            value={editInstall}
+            onChange={setEditInstall}
+            installs={installs}
+            activePath={activePath}
+          />
+        </div>
       </Modal>
 
       {/* Launch */}
